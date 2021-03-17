@@ -48,6 +48,20 @@ func getHomeTrashDirectory(dataHomeDirectory string) (string, error) {
 	homeTrashPath := dataHomeDirectory + "/Trash"
 	hasHomeTrash, _ := afero.DirExists(fs, homeTrashPath)
 	if hasHomeTrash {
+		//add by Nxxaux-----------------------
+		/*
+			.local/share/Trash/files: permission denied fixed !!
+		*/
+		fs := afero.NewOsFs()
+		_, err := fs.Stat(homeTrashPath)
+		if err != nil {
+			return "", err
+		}
+		err = fs.Chmod(homeTrashPath, 0700) //drwx --- ---
+		if err != nil {
+			return "", err
+		}
+		//------------------------------------
 		return homeTrashPath, nil
 	}
 	err := fs.MkdirAll(homeTrashPath, os.ModeDir)
